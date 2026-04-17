@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renda e Conta - Simplic</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; }
+        .header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .logo { color: #4caf50; font-size: 24px; font-weight: bold; font-style: italic; }
+        .form-container { background: white; padding: 20px; }
+        .section-title { color: #4caf50; font-size: 22px; margin-bottom: 20px; font-weight: bold; }
+        .input-group { margin-bottom: 15px; width: 100%; }
+        label { display: block; font-size: 14px; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; background: #fdfdfd; font-size: 16px; }
+        input.erro, select.erro { border: 2px solid #ff4d4d; background: #fff2f2; }
+        
+        .alert-box { background-color: #fff9e6; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 13px; }
+        .alert-box b { color: #856404; }
+
+        .btn-avancar { background: #ffcc00; color: #333; border: none; padding: 15px; width: 100%; border-radius: 5px; font-size: 18px; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-top: 20px; display: flex; justify-content: center; align-items: center; min-height: 55px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #333; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">Simplic</div>
+        <div style="font-size: 24px; color: #4caf50;">☰</div>
+    </div>
+
+    <div class="form-container">
+        <h2 class="section-title">Informações de Renda</h2>
+
+        <div class="input-group">
+            <label>Fonte da Renda *</label>
+            <select id="fonte_renda">
+                <option value="">Selecione</option>
+                <option value="Assalariado">Assalariado</option>
+                <option value="Autônomo">Autônomo / Profissional Liberal</option>
+                <option value="Aposentado">Aposentado / Pensionista</option>
+                <option value="Empresário">Empresário</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Renda Líquida Mensal Comprovada *</label>
+            <input type="tel" id="renda_valor" placeholder="R$ 0,00">
+        </div>
+
+        <div class="input-group">
+            <label>Como Você Recebe Seu Pagamento? *</label>
+            <select id="tipo_pagamento">
+                <option value="">Selecione</option>
+                <option value="Conta Corrente">Depósito em Conta Corrente</option>
+                <option value="Conta Poupança">Depósito em Conta Poupança</option>
+                <option value="Dinheiro">Em mãos (Dinheiro)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Qual Dia Você Recebe Sua Renda? *</label>
+            <input type="tel" id="dia_pagamento" placeholder="Ex: 05" maxlength="2">
+        </div>
+
+        <div class="input-group">
+            <label>Objetivo do Empréstimo *</label>
+            <select id="objetivo">
+                <option value="">Selecione</option>
+                <option value="Pagar Dívidas">Pagar Dívidas</option>
+                <option value="Reformar Casa">Reformar Casa</option>
+                <option value="Investimento">Investimento no Negócio</option>
+                <option value="Saúde">Saúde / Emergência</option>
+            </select>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 30px;">Conta Bancária</h2>
+
+        <div class="alert-box">
+            <b>IMPORTANTE:</b> A conta deve estar em seu nome. Revise os dados. Se houver erro, não conseguiremos fazer o depósito.
+        </div>
+
+        <div class="input-group">
+            <label>Banco Onde Você Possui Conta *</label>
+            <select id="banco_nome">
+                <option value="">Selecione o banco</option>
+                <option value="Bradesco">Bradesco</option>
+                <option value="Caixa">Caixa Econômica</option>
+                <option value="Itaú">Itaú</option>
+                <option value="Santander">Santander</option>
+                <option value="Nubank">Nubank</option>
+                <option value="Banco do Brasil">Banco do Brasil</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Agência *</label>
+            <input type="tel" id="agencia" placeholder="Ex: 0001" maxlength="4">
+        </div>
+
+        <div class="input-group">
+            <label>Conta Corrente (com dígito) *</label>
+            <input type="tel" id="conta_numero" placeholder="Ex: 12345-6">
+        </div>
+
+        <button class="btn-avancar" id="btnFinalizar">
+            <span id="textoBtn">FINALIZAR PROPOSTA ›</span>
+            <div id="loader" class="loader"></div>
+        </button>
+    </div>
+
+    <script>
+        const inputs = {
+            fonte: document.getElementById('fonte_renda'),
+            renda: document.getElementById('renda_valor'),
+            tipoPag: document.getElementById('tipo_pagamento'),
+            dia: document.getElementById('dia_pagamento'),
+            objetivo: document.getElementById('objetivo'),
+            banco: document.getElementById('banco_nome'),
+            agencia: document.getElementById('agencia'),
+            conta: document.getElementById('conta_numero')
+        };
+
+        // Máscara de Moeda (R$ 0,00)
+        inputs.renda.addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g, "");
+            v = (v / 100).toFixed(2) + "";
+            v = v.replace(".", ",");
+            v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+            v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            e.target.value = "R$ " + v;
+        });
+
+        // Máscara de Conta (adiciona o traço antes do último dígito)
+        inputs.conta.addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g, "");
+            if (v.length > 1) {
+                v = v.replace(/(\d+)(\d{1})$/, "$1-$2");
+            }
+            e.target.value = v;
+        });
+
+        function validar() {
+            let temErro = false;
+            Object.values(inputs).forEach(el => el.classList.remove('erro'));
+
+            if (inputs.fonte.value === "") { inputs.fonte.classList.add('erro'); temErro = true; }
+            if (inputs.renda.value === "" || inputs.renda.value === "R$ 0,00") { inputs.renda.classList.add('erro'); temErro = true; }
+            if (inputs.banco.value === "") { inputs.banco.classList.add('erro'); temErro = true; }
+            if (inputs.agencia.value.length < 3) { inputs.agencia.classList.add('erro'); temErro = true; }
+            if (inputs.conta.value.length < 3) { inputs.conta.classList.add('erro'); temErro = true; }
+
+            if (temErro) {
+                alert("Por favor, preencha as informações financeiras corretamente para análise.");
+                return false;
+            }
+            return true;
+        }
+
+        document.getElementById('btnFinalizar').onclick = function() {
+            if (!validar()) return;
+
+            // SALVANDO NA BIBLIOTECA (LocalStorage)
+            localStorage.setItem('renda_fonte', inputs.fonte.value);
+            localStorage.setItem('renda_valor', inputs.renda.value);
+            localStorage.setItem('renda_tipo_pagamento', inputs.tipoPag.value);
+            localStorage.setItem('renda_dia', inputs.dia.value);
+            localStorage.setItem('renda_objetivo', inputs.objetivo.value);
+            localStorage.setItem('banco_nome', inputs.banco.value);
+            localStorage.setItem('banco_agencia', inputs.agencia.value);
+            localStorage.setItem('banco_conta', inputs.conta.value);
+
+            this.disabled = true;
+            document.getElementById('textoBtn').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+
+            setTimeout(() => {
+                window.location.href = "analise.html";
+            }, 2000);
+        };
+    </script>
+</body>
+</html>
+
